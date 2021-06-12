@@ -3,9 +3,9 @@ a telegram bot for red alerts in israel
 
 # how to run
  
- git clone https://github.com/iiiiii1wepfj/message-view-counter-bot.git
+ git clone https://github.com/iiiiii1wepfj/red-alert-bot.git
  
- cd message-view-counter-bot
+ cd red-alert-bot
  
  pip3 install -U -r requirements.txt
  

@@ -1,4 +1,4 @@
-from pyrogram import Client
+from pyrogram import Client, filters
 import tzevaadom
 
 api_id = your api id
@@ -14,7 +14,7 @@ app = Client(
 chats_to_forward = []
 main_channel = "-100"
 
-@app.on_message(pyrogram.filters.command("start"))
+@app.on_message(filters.command("start"))
 def pvtmsg(c, m):
     m.reply("הבוט נוצר על ידי @itayki ופועל בערוץ https://t.me/redalertil2021")
 

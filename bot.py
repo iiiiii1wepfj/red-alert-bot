@@ -14,6 +14,7 @@ app = Client(
 chats_to_forward = []
 main_channel = "-100"
 
+
 @app.on_message(filters.command("start"))
 def pvtmsg(c, m):
     m.reply("הבוט נוצר על ידי @itayki ופועל בערוץ https://t.me/redalertil2021")
@@ -26,13 +27,13 @@ def redalertsendfunc(alert):
             i["zone"],
             i["time"],
         )
-    a = app.send_message(
-        main_channel,
-        f"צבע אדום ב: {alertcityformat}\n\n אזור: {alertzoneformat}\n\n זמן: {alerttimeformat}\n\nערוץ https://t.me/redalertil2021",
-        disable_web_page_preview=True,
-    )
-    for e in chats_to_forward:
-        a.forward(e)
+        a = app.send_message(
+            main_channel,
+            f"צבע אדום ב: {alertcityformat}\n\n אזור: {alertzoneformat}\n\n זמן: {alerttimeformat}\n\nערוץ https://t.me/redalertil2021",
+            disable_web_page_preview=True,
+        )
+        for e in chats_to_forward:
+            a.forward(e)
 
 
 tzevaadom.alerts_listener(redalertsendfunc)

@@ -44,9 +44,7 @@ def on_siren(sirens):
                 thezonename = ""
                 thecountdownhebrew = ""
         except:
-            thecityname = ""
-            thezonename = ""
-            thecountdownhebrew = ""
+            continue
         a = app.send_message(
             main_channel,
             f"צבע אדום ב: {thecityname}\n\n אזור: {thezonename}\n\n זמן: {thecountdownhebrew}\n\nערוץ https://t.me/redalertil2021",

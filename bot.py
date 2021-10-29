@@ -36,13 +36,11 @@ def on_siren(sirens):
                 thezonename = ""
                 thecountdownhebrew = ""
             except:
-                thecityname = ""
-                thezonename = ""
-                thecountdownhebrew = ""
-            except AttributeError:
-                thecityname = i.city
-                thezonename = ""
-                thecountdownhebrew = ""
+                continue
+        except AttributeError:
+            thecityname = i.city
+            thezonename = ""
+            thecountdownhebrew = ""
         except:
             continue
         a = app.send_message(

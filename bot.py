@@ -28,6 +28,8 @@ def on_siren(sirens):
         city_name = i.city.name.he
         city_countdown = i.city.countdown.he
         city_zone = i.city.zone.he or "לא ידוע"
+        if not i.city.zone.he:
+            city_countdown = "לא ידוע"
 
         a = app.send_message(
             main_channel,

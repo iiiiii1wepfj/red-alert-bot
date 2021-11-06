@@ -1,9 +1,9 @@
 from pyrogram import Client, filters
 import pikudhaoref
 
-api_id = your api id
-api_hash = "your api hash"
-bot_token = "your bot token"
+api_id: int = 0  # Put your API ID here
+api_hash: str = ""  # Put your API hash here
+bot_token: str = ""  # Put your bot token here
 
 app = Client(
     "redalertbot",
@@ -13,7 +13,6 @@ app = Client(
 )
 chats_to_forward = []
 main_channel = "-100"
-
 
 client = pikudhaoref.SyncClient(update_interval=2)
 
@@ -26,31 +25,20 @@ def pvtmsg(c, m):
 @client.event()
 def on_siren(sirens):
     for i in sirens:
-        try:
-            thecityname = i.city.name.he
-            try:
-                thezonename = i.city.zone.he
-                thecountdownhebrew = i.city.countdown.he
-            except AttributeError:
-                thecityname = i.city
-                thezonename = ""
-                thecountdownhebrew = ""
-            except:
-                continue
-        except AttributeError:
-            thecityname = i.city
-            thezonename = ""
-            thecountdownhebrew = ""
-        except:
-            continue
+        city_name = i.city.name.he
+        city_countdown = i.city.countdown.he
+        city_zone = i.city.zone.he or "לא ידוע"
+        if not i.city.zone.he:
+            city_countdown = "לא ידוע"
+
         a = app.send_message(
             main_channel,
-            f"צבע אדום ב: {thecityname}\n\n אזור: {thezonename}\n\n זמן: {thecountdownhebrew}\n\nערוץ https://t.me/redalertil2021",
+            f"צבע אדום ב: {city_name}\n\n אזור: {city_zone}\n\n זמן: {city_countdown}\n\nערוץ "
+            f"https://t.me/redalertil2021",
             disable_web_page_preview=True,
         )
         for e in chats_to_forward:
             a.forward(e)
-        del thecityname, thezonename, thecountdownhebrew
 
 
 app.run()

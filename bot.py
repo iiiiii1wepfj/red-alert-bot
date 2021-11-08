@@ -33,8 +33,7 @@ def on_siren(sirens):
 
         a = app.send_message(
             main_channel,
-            f"צבע אדום ב: {city_name}\n\n אזור: {city_zone}\n\n זמן: {city_countdown}\n\nערוץ "
-            f"https://t.me/redalertil2021",
+            f"🔴 <b>צבע אדום</b>\n\n<b>עיר:</b> {city_name}\n<b>אזור:</b> {city_zone}\n<b>זמן:</b> {city_countdown}\n\n<b>ערוץ https://t.me/redalertil2021</b>",
             disable_web_page_preview=True,
         )
         for e in chats_to_forward:

@@ -57,6 +57,10 @@ def on_siren(sirens):
     for i in sirens["data"]:
         city_info = cities_data[i]
         try:
+            alert_category = sirens["title"]
+        except:
+            alert_category = "לא ידוע"
+        try:
             countdown_for_the_city = countdown_data[str(city_info["countdown"])]["he"]
         except:
             countdown_for_the_city = "לא ידוע"
@@ -64,10 +68,14 @@ def on_siren(sirens):
             area_for_the_city = areas_data[str(city_info["area"])]["he"]
         except:
             area_for_the_city = "לא ידוע"
-
+        try:
+            pikud_desc = sirens["desc"]
+        except:
+            pikud_desc = "לא ידוע"
+            
         a = app.send_message(
             main_channel,
-            f"🔴 <b>צבע אדום</b>\n\n<b>עיר:</b> {i}\n<b>אזור:</b> {area_for_the_city}\n<b>זמן:</b> {countdown_for_the_city}\n\n<b>ערוץ https://t.me/redalertilchannel</b>",
+            f"🔴 <b>התרעת פיקוד העורף</b>\n\n<b>סוג:</b> {alert_category}\n<b>עיר:</b> {i}\n<b>אזור:</b> {area_for_the_city}\n<b>זמן (רלוונטי במקרה של ירי טילים ורקטות):</b> {countdown_for_the_city}\n<b>הנחיות:</b> {pikud_desc}\n\n<b>ערוץ https://t.me/redalertilchannel</b>",
             disable_web_page_preview=True,
         )
         for e in chats_to_forward:

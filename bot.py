@@ -32,7 +32,7 @@ class siren_listener:
     def __init__(self, callback):
         self.callback = callback
         self.running = True
-        self.last_data = ""
+        self.last_data = []
         self.thread = threading.Thread(target=self.__listener__)
         self.thread.start()
 

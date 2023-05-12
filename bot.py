@@ -45,10 +45,18 @@ class siren_listener:
                 time.sleep(2)
                 response = requests.get("https://www.oref.org.il/WarningMessages/Alert/alerts.json", headers={"X-Requested-With":"XMLHttpRequest","Referer":"https://www.oref.org.il/"})
                 res_content = (response.content).decode("utf-8-sig")
-                if len(res_content) > 4 and response.status_code == 200 and res_content != self.last_data:
+                if len(res_content) > 4 and response.status_code == 200 and res_content:
                     alert_data = json.loads(res_content)
+                    cities_list = alert_data["data"]
+                    filter_alerts = list({area for (area) in (cities_list) if (area not in self.last_data) or (cities_list.count(area) > 1 and self.last_data.count(area) == 1)})
+                    filter_alerts.sort()
+                    self.last_data = list(cities_list)
+                    alert_data["data"] = filter_alerts
+                    if len(filter_alerts) == 0:
+                        continue
                     threading.Thread(target=self.callback, args=(alert_data,)).start()
-                    self.last_data = res_content
+                elif res_content != "" and self.last_data != []:
+                    self.last_data = []
             except:
                 pass
 

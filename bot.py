@@ -1,5 +1,5 @@
-from pyrogram import Client, filters
-import requests, time, threading, json
+from pyrogram import Client, filters, idle
+import aiohttp, time, threading, json, asyncio, requests
 
 
 api_id: int = 0  # Put your API ID here
@@ -14,7 +14,7 @@ app = Client(
     bot_token=bot_token,
 )
 chats_to_forward = []
-main_channel = "-100"
+main_channel = 0
 
 
 pikud_locations_data = (requests.get("https://www.tzevaadom.co.il/static/cities.json")).json()
@@ -24,8 +24,8 @@ countdown_data = pikud_locations_data["countdown"]
 
 
 @app.on_message(filters.command("start"))
-def pvtmsg(c, m):
-    m.reply("הבוט נוצר על ידי @itayki ופועל בערוץ https://t.me/redalertilchannel")
+async def pvtmsg(c, m):
+    await m.reply("הבוט נוצר על ידי @itayki ופועל בערוץ https://t.me/redalertilchannel")
 
 
 class siren_listener:
@@ -33,35 +33,38 @@ class siren_listener:
         self.callback = callback
         self.running = True
         self.last_data = []
-        self.thread = threading.Thread(target=self.__listener__)
-        self.thread.start()
+        asyncio.create_task(self.__listener__())
 
     def stop(self):
         self.running = False
 
-    def __listener__(self):
-        while self.running:
-            try:
-                time.sleep(2)
-                response = requests.get("https://www.oref.org.il/WarningMessages/Alert/alerts.json", headers={"X-Requested-With":"XMLHttpRequest","Referer":"https://www.oref.org.il/"})
-                res_content = (response.content).decode("utf-8-sig")
-                if len(res_content) > 4 and response.status_code == 200 and res_content:
-                    alert_data = json.loads(res_content)
-                    cities_list = alert_data["data"]
-                    filter_alerts = list({area for (area) in (cities_list) if (area not in self.last_data) or (cities_list.count(area) > 1 and self.last_data.count(area) == 1)})
-                    filter_alerts.sort()
-                    self.last_data = list(cities_list)
-                    alert_data["data"] = filter_alerts
-                    if len(filter_alerts) == 0:
-                        continue
-                    threading.Thread(target=self.callback, args=(alert_data,)).start()
-                elif res_content != "" and self.last_data != []:
-                    self.last_data = []
-            except:
-                pass
+    async def __listener__(self):
+        async with aiohttp.ClientSession(headers={"X-Requested-With":"XMLHttpRequest","Referer":"https://www.oref.org.il/"}) as session:
+            while self.running:
+                try:
+                    await asyncio.sleep(2)
+                    async with session.get("https://www.oref.org.il/WarningMessages/Alert/alerts.json") as response:
+                        res_content = await response.text()
+                        if len(res_content) > 4 and response.status == 200 and res_content:
+                            alert_data = json.loads(res_content.encode().decode('utf-8-sig'))
+                            cities_list = alert_data["data"]
+                            filter_alerts = list({area for (area) in (cities_list) if (area not in self.last_data) or (cities_list.count(area) > 1 and self.last_data.count(area) == 1)})
+                            filter_alerts.sort()
+                            self.last_data = list(cities_list)
+                            alert_data["data"] = filter_alerts
+                            print(alert_data)
+                            if len(filter_alerts) == 0:
+                                continue
+
+                            asyncio.create_task(self.callback(alert_data))
+                        elif res_content != "" and self.last_data != []:
+                            self.last_data = []
+                except aiohttp.client_exceptions.ClientConnectorError:
+                    pass
 
 
-def on_siren(sirens):
+async def on_siren(sirens):
+    print(sirens)
     for i in sirens["data"]:
         city_info = cities_data[i]
         try:
@@ -81,15 +84,19 @@ def on_siren(sirens):
         except:
             pikud_desc = "לא ידוע"
             
-        a = app.send_message(
+        a = await app.send_message(
             main_channel,
             f"🔴 <b>התרעת פיקוד העורף</b>\n\n<b>סוג:</b> {alert_category}\n<b>עיר:</b> {i}\n<b>אזור:</b> {area_for_the_city}\n<b>זמן (רלוונטי במקרה של ירי טילים ורקטות):</b> {countdown_for_the_city}\n<b>הנחיות:</b> {pikud_desc}\n\n<b>ערוץ @redalertilchannel</b>",
             disable_web_page_preview=True,
         )
         for e in chats_to_forward:
-            a.forward(e)
+            await a.forward(e)
+
+async def main():
+    siren_listener_handler = siren_listener(on_siren)
+    await app.start()
+    await idle()
+    siren_listener_handler.stop()
 
 
-siren_listener_handler = siren_listener(on_siren)
-app.run()
-siren_listener_handler.stop()
+app.run(main())

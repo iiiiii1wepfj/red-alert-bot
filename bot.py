@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pyrogram import Client, filters, idle
 import aiohttp
 import asyncio
@@ -16,7 +17,7 @@ app = Client(
     bot_token=bot_token,
 )
 chats_to_forward = []
-main_channel = 0
+main_channel = "-100"
 
 pikud_locations_data = (requests.get("https://www.tzevaadom.co.il/static/cities.json")).json()
 cities_data = pikud_locations_data["cities"]
@@ -25,6 +26,13 @@ countdown_data = pikud_locations_data["countdown"]
 
 
 point_symbol = u'\u2022'
+
+
+@dataclass
+class City:
+	name: str
+	category: int
+
 
 @app.on_message(filters.command("start"))
 async def pvtmsg(c, m):
@@ -47,17 +55,17 @@ class SirenListener:
                     res_content = await response.text()
                     if len(res_content) > 4 and response.status == 200 and res_content:
                         alert_data = json.loads(res_content.encode().decode('utf-8-sig'))
-                        cities_list = alert_data["data"]
+                        cities_list = list(map(lambda i: City(name=i, category=int(alert_data["cat"])), alert_data["data"]))
                         filter_alerts = list(
                         {
-                            area
+                            area.name
                             for area in cities_list
                             if area not in self.last_data
                             or (cities_list.count(area) > 1 and self.last_data.count(area) == 1)
                           }
                         )
                         filter_alerts.sort()
-                        self.last_data = list(cities_list)
+                        self.last_data = cities_list
                         if len(filter_alerts) == 0:
                             continue
                         asyncio.create_task(self.callback(alert_data))

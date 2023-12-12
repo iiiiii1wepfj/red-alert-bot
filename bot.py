@@ -1,3 +1,4 @@
+from collections import defaultdict
 from dataclasses import dataclass
 from pyrogram import Client, filters, idle
 import aiohttp
@@ -80,7 +81,7 @@ class SirenListener:
 
 
 async def on_siren(sirens):
-    areasdict = {}
+    areasdict = defaultdict(list)
     alertcat = sirens["title"]
     alertcatid = int(sirens["cat"])
     pikud_desc = sirens["desc"]
@@ -90,8 +91,6 @@ async def on_siren(sirens):
     for i in sirens["data"]:
         city_info = cities_data[i]
         thearea = areas_data[str(city_info["area"])]["he"]
-        if thearea not in areasdict:
-            areasdict[thearea] = []
         areasdict[thearea].append(f'{i} ({countdown_data[str(city_info["countdown"])]["he"]})' if alertcatid == 1 else i)
     msg_.append(f"🔴 <b>{alertcat}</b>")
     for k, v in areasdict.items():

@@ -53,9 +53,9 @@ class SirenListener:
                 try:
                   await asyncio.sleep(2)
                   async with session.get("https://www.oref.org.il/WarningMessages/Alert/alerts.json") as response:
-                    res_content = await response.text()
+                    res_content = await response.text(encoding='utf-8-sig')
                     if len(res_content) > 4 and response.status == 200 and res_content:
-                        alert_data = json.loads(res_content.encode().decode('utf-8-sig'))
+                        alert_data = json.loads(res_content)
                         cities_list = list(map(lambda i: City(name=i, category=int(alert_data["cat"])), alert_data["data"]))
                         filter_alerts = list(
                         {
@@ -69,6 +69,7 @@ class SirenListener:
                         self.last_data = cities_list
                         if len(filter_alerts) == 0:
                             continue
+                        alert_data["data"] = filter_alerts
                         asyncio.create_task(self.callback(alert_data))
                     elif res_content != "" and self.last_data != []:
                         self.last_data = []

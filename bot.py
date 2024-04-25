@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from pyrogram import Client, filters, idle
+from hydrogram import Client, filters, idle
 import aiohttp
 import asyncio
 import json
